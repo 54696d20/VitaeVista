@@ -7,7 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=${BUILD_CONFIGURATION:-Debug}
 WORKDIR /src
-COPY ["VitaeVista/VitaeVista.csproj", "VitaeVista/"]
+COPY ["VitaeVista.csproj", "VitaeVista/"]
 RUN dotnet restore "VitaeVista/VitaeVista.csproj"
 COPY . .
 WORKDIR "/src/VitaeVista"

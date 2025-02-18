@@ -1,5 +1,19 @@
+# Ignore build artifacts
 bin/
 obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+
+# Ignore Rider/VS Code project files
+.idea/
+.vscode/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore user secrets & environment files
+secrets.json
+.env
+
+# Ignore compiled Python files
+fastapi-service/__pycache__/
+*.pyc
+*.pyo
