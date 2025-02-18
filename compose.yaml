@@ -1,6 +1,5 @@
 ﻿services:
-  vitaevista:
-    image: vitaevista
+  vitae-vista:
     build:
       context: .
       dockerfile: VitaeVista/Dockerfile
@@ -9,3 +8,12 @@
     environment:
       - DOTNET_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=1
+    depends_on:
+      - fastapi-service
+
+  fastapi-service:
+    build:
+      context: ./fastapi-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
