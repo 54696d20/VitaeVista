@@ -1,0 +1,11 @@
+﻿services:
+  vitaevista:
+    image: vitaevista
+    build:
+      context: .
+      dockerfile: VitaeVista/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
