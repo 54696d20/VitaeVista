@@ -7,13 +7,18 @@
       - "5001:8080"
     environment:
       - DOTNET_ENVIRONMENT=Development
-      - DOTNET_USE_POLLING_FILE_WATCHER=1
-    depends_on:
-      - fastapi-service
-
+    volumes:
+      - data-protection-keys:/home/app/.aspnet/DataProtection-Keys
+    command: >
+      sh -c "mkdir -p /home/app/.aspnet/DataProtection-Keys && 
+             chown -R app:app /home/app/.aspnet/DataProtection-Keys &&
+             dotnet VitaeVista.dll"
   fastapi-service:
     build:
       context: ./fastapi-service
       dockerfile: Dockerfile
     ports:
       - "8001:8001"
+
+volumes:
+  data-protection-keys:
