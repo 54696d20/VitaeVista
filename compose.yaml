@@ -9,10 +9,25 @@
       - DOTNET_ENVIRONMENT=Development
     volumes:
       - data-protection-keys:/home/app/.aspnet/DataProtection-Keys
+    depends_on:
+      - vitae-vista-api
+      - fastapi-service
     command: >
       sh -c "mkdir -p /home/app/.aspnet/DataProtection-Keys && 
              chown -R app:app /home/app/.aspnet/DataProtection-Keys &&
              dotnet VitaeVista.dll"
+
+  vitae-vista-api:
+    build:
+      context: .
+      dockerfile: VitaeVista.API/Dockerfile
+    ports:
+      - "5002:8080"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+    depends_on:
+      - fastapi-service
+
   fastapi-service:
     build:
       context: ./fastapi-service
