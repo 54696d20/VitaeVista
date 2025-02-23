@@ -1,5 +1,9 @@
 # Use a Python base image with Debian (better compatibility)
-FROM python:3.10-slim-bullseye
+FROM --platform=linux/arm64 python:3.10-slim-bullseye
+WORKDIR /app
+COPY . .
+EXPOSE 8001
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
 
 # Set the working directory
 WORKDIR /app

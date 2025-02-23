@@ -1,28 +1,44 @@
-﻿# Use the .NET SDK image for building the API
+﻿# Use Debian-based .NET 8 runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+COPY . .
+EXPOSE 8081
+CMD ["dotnet", "VitaeVista.API.dll"]
+
+# SDK image for building the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
 
-# Copy the entire API directory, not just the csproj
-COPY VitaeVista.API/ VitaeVista.API/
+# Copy and restore dependencies
+COPY ["VitaeVista.API/VitaeVista.API.csproj", "VitaeVista.API/"]
+RUN dotnet restore "VitaeVista.API/VitaeVista.API.csproj"
 
-# Restore dependencies
-WORKDIR /src/VitaeVista.API
-RUN dotnet restore
+# Copy the full application source
+COPY . .
+WORKDIR "/src/VitaeVista.API"
 
 # Build the application
-RUN dotnet build -c Release -o /app/build
+RUN dotnet build "VitaeVista.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish the application
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "VitaeVista.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Use ASP.NET runtime image for the final stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Use the final runtime image
+FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
 
-# Expose the API port
-EXPOSE 8080
+# ✅ Apply correct permissions before switching users
+COPY --from=publish /app/publish /app
+RUN chmod -R 777 /app 
+
+# Create a non-root user
+RUN useradd -m appuser
+USER appuser
+
+# ✅ Force API to listen on correct port
+ENV ASPNETCORE_URLS=http://+:8081
 
 # Run the application
 ENTRYPOINT ["dotnet", "VitaeVista.API.dll"]

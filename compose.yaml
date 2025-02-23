@@ -4,36 +4,40 @@
       context: .
       dockerfile: VitaeVista/Dockerfile
     ports:
-      - "5001:8080"
+      - 5001:8080
     environment:
       - DOTNET_ENVIRONMENT=Development
-    volumes:
-      - data-protection-keys:/home/app/.aspnet/DataProtection-Keys
     depends_on:
-      - vitae-vista-api
-      - fastapi-service
-    command: >
-      sh -c "mkdir -p /home/app/.aspnet/DataProtection-Keys && 
-             chown -R app:app /home/app/.aspnet/DataProtection-Keys &&
-             dotnet VitaeVista.dll"
+      vitae-vista-api:
+        condition: service_healthy # test
+    networks:
+      - vitae-network
 
   vitae-vista-api:
     build:
       context: .
       dockerfile: VitaeVista.API/Dockerfile
     ports:
-      - "5002:8080"
+      - 5002:8081
     environment:
-      - DOTNET_ENVIRONMENT=Development
-    depends_on:
-      - fastapi-service
+      - ASPNETCORE_URLS=http://+:8081
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - vitae-network
 
   fastapi-service:
     build:
       context: ./fastapi-service
       dockerfile: Dockerfile
     ports:
-      - "8001:8001"
+      - 8001:8001
+    networks:
+      - vitae-network
 
-volumes:
-  data-protection-keys:
+networks:
+  vitae-network:
+    driver: bridge
