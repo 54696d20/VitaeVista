@@ -1,17 +1,4 @@
 ﻿services:
-  vitae-vista:
-    build:
-      context: .
-      dockerfile: VitaeVista/Dockerfile
-    ports:
-      - 5001:8080
-    environment:
-      - DOTNET_ENVIRONMENT=Development
-    depends_on:
-     - vitae-vista-api
-    networks:
-      - vitae-network
-
   vitae-vista-api:
     build:
       context: .
@@ -21,7 +8,7 @@
     environment:
       - ASPNETCORE_URLS=http://+:8081
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
       interval: 10s
       retries: 5
       start_period: 5s
@@ -34,6 +21,19 @@
       dockerfile: Dockerfile
     ports:
       - 8001:8001
+    networks:
+      - vitae-network
+
+  vitaevista-frontend:
+    build:
+      context: ./vitaevista-frontend  # Make sure this is correct
+      dockerfile: Dockerfile  # This should match exactly
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - vitae-vista-api
     networks:
       - vitae-network
 
